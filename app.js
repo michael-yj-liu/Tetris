@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     [width, width + 1, width + 2, width + 3]
   ]
 
-  const theTetrominoes = [lTetromino, zTetromino, tTetromino, oTetromino, iTetromino]
+  const tetrominoes = [lTetromino, zTetromino, tTetromino, oTetromino, iTetromino]
 
   // What about 8 and 9?? They cut off/wrap over to the next row
   let currentPosition = 4
@@ -55,21 +55,104 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentRotation = 0
 
   // Randomly select a Tetromino and its first rotation
-  let random = Math.floor(Math.random() * theTetrominoes.length)
+  let random = Math.floor(Math.random() * tetrominoes.length)
   // console.log(random)
-  let current = theTetrominoes[random][currentRotation]
+  let current = tetrominoes[random][currentRotation]
 
   // Draw the Tetromino
-  function draw() {
+  function draw () {
     // For each item in the array we want to add the class, tetrimino (found in style.css) which would color the item. forEach adds logic to each item of the array
     current.forEach(index => {
       // We access the CSS style sheet by using classList.add
       squares[currentPosition + index].classList.add('tetromino')
       // console.log(index)
       // console.log(squares)
-      console.log(currentPosition+index)
+      // console.log(currentPosition+index)
     })
   }
-draw()
 
+  // Undraw the tetromino
+  function undraw () {
+    current.forEach(index => {
+      squares[currentPosition + index].classList.remove('tetromino')
+    })
+  }
+
+  // Make the tetromino move down every second
+  timerID = setInterval(moveDown, 1000)
+
+  // Assign functions to keyCodes. Listen for anytime we press a key on our keyboard
+  // we are going to listen out which one was clicked and invoke the control function
+  function control (event) {
+    // If we press the key that equals keycode 37 we want our tetrmoino to incoke moveLeft()
+    if (event.keyCode === 37) {
+      moveLeft()
+    } else if (event.keyCode === 38) {
+      // rotate()
+    } else if (event.keyCode === 39) {
+      moveRight()
+    } else if (event.keyCode === 40) {
+      moveDown()
+    }
+  }
+  document.addEventListener('keyup', control)
+
+  // moveDown function
+  function moveDown () {
+    undraw()
+    currentPosition += width
+    draw()
+    // stop function gets invoked to check every second
+    stop()
+  }
+
+  // stop function checks if the tetromino has entered a position that is occupied.
+  // If so the tetrmonio stops and the next one begins to fall.
+  function stop () {
+    if (current.some(index => squares[currentPosition + index + width].classList.contains('occupied'))) {
+      current.forEach(index => squares[currentPosition + index].classList.add('occupied'))
+      // Start a new Tetromino
+      random = Math.floor(Math.random() * tetrominoes.length)
+      current = tetrominoes[random][currentRotation]
+      currentPosition = 4
+      draw()
+    }
+  }
+
+  // We need a set of rules so JavaScript knows when any of our tetrominos are in a certain index square.
+  // We need a rule that will stop our squares if they are in the square with index 10, 20, 30, etc.
+
+  // moveLeft function will visual move the tetromino left by drawing it and then undrawing it
+  // in the squares
+  function moveLeft () {
+    // We start by removing any trace of the shape in it's current location before we start so we have a clean slate
+    undraw()
+    const isAtLeftEdge = current.some(index => (currentPosition + index) % width === 0)
+    // Our shape can only move left or -1 from it's current position in the array
+    // if the shape is not at the left edge
+    if (!isAtLeftEdge) currentPosition -= 1
+
+    if (current.some(index => squares[currentPosition + index].classList.contains('occupied'))) {
+      currentPosition += 1
+    }
+    draw()
+  }
+
+  // moveRight function
+  function moveRight () {
+    // We start by removing any trace of the shape in it's current location before we start so we have a clean slate
+    undraw()
+    const isAtRightEdge = current.some(index => (currentPosition + index) % width === width - 1)
+    // Our shape can only move right or +1 from it's current position in the array
+    // if the shape is not at the right edge already
+    if (!isAtRightEdge) currentPosition += 1
+    // If some of the squares that make up the tetromino are suddenly in a square that
+    // contains the class, 'occupied' we have to push it back a space in the array making
+    // them visually appear like they have not moved at all
+    if (current.some(index => squares[currentPosition + index].classList.contains('occupied'))) {
+      currentPosition -= 1
+    }
+    // Finally we redraw the tetromino in it's new position
+    draw()
+  }
 })
