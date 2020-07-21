@@ -1,3 +1,8 @@
+/* Allows the mini grid to display in line with the main grid */
+.container {
+  display: flex;
+}
+
 .grid {
   background-color: yellow;
   width: 200px;
@@ -15,4 +20,19 @@
 
 .tetromino {
   background-color: blue;
+}
+
+.mini-grid {
+  margin-left: 50px; /* Moves the mini grid 50 pixels to the left of the main grid
+  so the user can distinguish the 2 seperate grids*/
+  background-color: yellow;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.mini-grid div {
+  height: 20px;
+  width: 20px;
 }
